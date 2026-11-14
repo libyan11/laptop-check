@@ -1,0 +1,115 @@
+LAPTOP CHECK - inspection for used Windows laptops / PCs
+=====================================================================
+
+THREE VERSIONS - same folder, pick the launcher:
+  Run-SellCheck.bat       WHEN SELLING (e.g. on eBay). Run it BEFORE wiping your laptop.
+                          Tests everything, then writes Listing.txt + Listing-eBay.html in the
+                          report folder: a suggested 80-character title, the specs, every test
+                          that passed (battery health %, drive health, RAM/CPU tests, not locked,
+                          genuine Windows, virus-free...), and an honest KNOWN ISSUES list.
+                          No personal info goes into the listing. The report also has a
+                          before-selling checklist: sign out of accounts, unlink the PC, remove
+                          BIOS password, wipe with "Clean data", stop at the first setup screen.
+                          Being upfront about issues protects you from "not as described" returns.
+  Run-LaptopCheck.bat     BEFORE buying (at the seller's). Fast (~10 min), focused on
+                          deal-breakers: company locks, hidden faults, malware, specs vs advert.
+  Run-MyLaptopCheck.bat   AFTER buying (your own laptop). Deeper: Full Defender scan by default,
+                          3-minute CPU stress test, real battery run-time measurement, Windows
+                          Update check, optional full Windows Memory Diagnostic at next restart,
+                          encryption/recovery-key check, trial-software list, and an
+                          After-purchase to-do list (reset, BIOS/driver updates with the right
+                          tool for your brand, warranty, recovery USB, Find My Device).
+  Both keep a history (Reports\history.csv): run it again later and the report shows how the
+  battery health and drive wear changed since last time.
+
+BEFORE YOU GO
+  1. If you downloaded this as a zip: right-click the zip > Properties > tick "Unblock" > OK,
+     THEN extract it. (Otherwise Windows may block the script.)
+  2. Copy the whole "LaptopCheck" folder onto a USB stick.
+  3. Try it once on your own PC so you know what it looks like.
+  4. Optional but recommended: the tool offers to download Microsoft Sysinternals
+     "autorunsc64.exe" and "sigcheck64.exe" into the Tools folder (or download them yourself
+     from learn.microsoft.com/sysinternals). Then every auto-start file and every program in
+     the user folders is also checked against VirusTotal (only file fingerprints are sent,
+     not files). The tool refuses to run them unless they are genuinely signed by Microsoft.
+
+AT THE SELLER'S
+  1. Plug in the USB stick and the laptop's charger. Connect to Wi-Fi if you can
+     (your phone hotspot is fine) - it lets Defender update and test Wi-Fi.
+  2. Double-click  Run-LaptopCheck.bat  and click YES on the admin prompt.
+     (Without admin rights about a third of the checks are skipped.)
+  3. Answer the questions (what the advert said - press Enter to skip) and pick the
+     malware scan type: Quick (~5-15 min) or Full (every file, 30 min - 2+ hours).
+  4. When asked, unplug and re-plug the charger (tests battery + charging port).
+  5. Total time: about 5-10 minutes plus the Defender scan.
+  6. The report opens by itself. Click "Open hands-on tests" for the screen,
+     keyboard, touchpad, speaker, microphone, webcam tests and the physical checklist.
+  7. Reports are saved in LaptopCheck\Reports\<date>_<brand>_<model>_<serial>\
+     on the USB stick, so you can compare several laptops later.
+
+READING THE REPORT
+  RED    = problem / deal-breaker (company lock, dead hardware, malware...)
+  YELLOW = warning - check it, maybe use it to negotiate the price
+  GREEN  = passed
+  BLUE   = you have to check this by hand
+  A "Company lock" red item means: DO NOT PAY until the seller proves the laptop
+  has been released by the company.
+
+WHAT IT CHECKS (automatically detects brand + model - no need to choose)
+  Company lock  : Entra ID/Azure AD join, domain join, Intune/MDM enrolment, Autopilot
+                  registration, SCCM and 20+ company management agents, Defender for
+                  Endpoint, Absolute/Computrace anti-theft, BIOS passwords (Dell, HP,
+                  Lenovo read directly from firmware), asset/ownership tags, company
+                  user profiles, company Wi-Fi, company certificates, login banners,
+                  WSUS, group policies, PowerShell lockdown, Microsoft account still signed in
+  Licence       : activation, firmware key, KMS/volume/pirated activation, edition, S mode
+  Hardware      : battery health % + cycles, charger + charging test, drive health/wear/
+                  errors/hours, storage vs advert, RAM vs advert + quick RAM test, CPU vs
+                  advert + full-load throttling test, GPU vs advert + GPU errors, screen
+                  panel, Wi-Fi (standard + networks seen), Bluetooth (adapter, radio state,
+                  nearby-device scan), webcam, mic, speakers, keyboard, touchpad,
+                  touchscreen, fingerprint, card reader, USB/Thunderbolt, Device Manager
+                  errors and DISABLED devices, TPM, Secure Boot, disk speed
+  History       : blue screens, unexpected shutdowns, hardware (WHEA) errors, disk errors,
+                  CPU throttling events, crash dumps
+  Security      : Defender status, exclusions, past detections, UAC, firewall, updates,
+                  remote desktop/registry/WinRM/SSH, SMBv1, driver signing / test mode,
+                  BitLocker + recovery key, Windows 11 upgrade readiness
+  Original parts: mismatched RAM sticks (one added later), retail/upgraded RAM, aftermarket or
+                  no-name battery, retail or cheap no-name replacement drive, replaced
+                  motherboard - plus a link to the maker's list of the ORIGINAL parts for
+                  that serial number (Dell service tag, HP PartSurfer, Lenovo PSREF)
+  Log audit     : event logs recently cleared, Defender switched off / exclusions added,
+                  suspicious encoded PowerShell, security services crashing
+  Network speed : Wi-Fi signal, ping and a 25 MB download speed test (when online)
+  Suspicious    : remote-control tools (TeamViewer, AnyDesk ...), spyware/keyloggers,
+                  employee monitoring, RATs, crypto miners, cracks/activators, adware,
+                  fake system processes, programs running from odd folders
+  Auto-start    : Run keys (all users), Startup folders, scheduled tasks, services,
+                  kernel drivers, WMI persistence, Winlogon/Userinit hijacks, AppInit DLLs,
+                  IFEO hijacks, login-screen backdoors (sethc/utilman), LSA packages,
+                  forced browser extensions - all with digital-signature checks
+  Network       : hosts file, proxies, DNS hijack, interception certificates, open ports
+  Every file    : walks EVERY file name on every internal drive looking for disguised files
+                  (.pdf.exe, right-to-left tricks), known malware/crack/miner names, and
+                  unsigned programs or scripts in unusual places (Temp, Public, AppData
+                  root, Pictures, drive root ...); flags random-looking folder names,
+                  odd folders at the drive root and super-hidden folders
+  Malware scan  : Microsoft Defender Quick or Full scan (Full reads the CONTENT of every file)
+
+WHAT NO SOFTWARE CAN TELL YOU (use the checklist in the hands-on page)
+  - Physical/liquid damage, swollen battery, loose hinges, cracked case
+  - BIOS passwords on brands that hide them -> open the BIOS yourself (key shown in report)
+  - Autopilot locks only show up after a reset -> watch the seller reset it while online
+  - Whether the laptop is reported stolen -> check the serial sticker matches, ask for a receipt
+  - Macs running Windows: check Activation Lock in macOS
+
+SAFETY
+  The tool only reads information. It does not uninstall, delete or change settings and
+  it uploads nothing (except optional VirusTotal hash lookups if you add the Sysinternals
+  tools). It writes its report to the USB stick. Windows itself logs the battery report,
+  the disk speed test and the Defender scan.
+
+ADVANCED
+  Run-LaptopCheck.bat -DefenderScan Full -StressSeconds 120
+  Other switches: -NoPrompt -SkipStress -SkipDiskBench -SkipFileScan -NoOpen

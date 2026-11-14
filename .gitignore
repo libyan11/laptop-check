@@ -1,0 +1,14 @@
+# Reports contain details of the PC they ran on - never commit them
+Reports/
+**/Reports/
+TestReports/
+AdminReports/
+history.csv
+
+# Downloaded third-party tools (users fetch them from Microsoft themselves)
+LaptopCheck/Tools/*
+!LaptopCheck/Tools/.gitkeep
+
+# Build output / logs
+*.zip
+*.log

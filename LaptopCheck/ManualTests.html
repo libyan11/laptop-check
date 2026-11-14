@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hands-on Laptop Tests</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--text:#1d2330;--muted:#5d6777;--line:#e2e6ec;--acc:#2457d6;--ok:#1e8e4e;--okbg:#dff3e7;--key:#eef1f5;--keyhit:#1e8e4e}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12151b;--card:#1b2029;--text:#e6e9ef;--muted:#9aa3b2;--line:#2b3240;--acc:#7ea2ff;--ok:#4cc27f;--okbg:#14301f;--key:#262c38;--keyhit:#2f9e60}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 "Segoe UI",system-ui,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:26px;margin:0 0 4px}h2{font-size:19px;margin:0 0 6px}
+.muted{color:var(--muted)}
+nav{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 18px;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}
+nav a{padding:6px 12px;border-radius:20px;background:var(--card);border:1px solid var(--line);color:var(--text);text-decoration:none;font-size:14px}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
+button,select{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:var(--key);color:var(--text);cursor:pointer;margin:4px 6px 4px 0}
+button.primary{background:var(--acc);color:#fff;border-color:var(--acc)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.status{font-size:14px;color:var(--muted);margin-top:6px}
+.kb{display:flex;flex-direction:column;gap:5px;margin-top:12px;overflow-x:auto;padding-bottom:4px}
+.kr{display:flex;gap:5px}
+.k{flex:0 0 auto;height:40px;min-width:40px;border-radius:6px;background:var(--key);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;user-select:none;transition:background .1s}
+.k.hit{background:var(--keyhit);color:#fff;border-color:var(--keyhit)}
+.k.down{outline:3px solid var(--acc)}
+#pad{height:220px;border:2px dashed var(--line);border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;user-select:none;margin-top:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{padding:4px 10px;border-radius:14px;background:var(--key);font-size:13px}
+.chip.ok{background:var(--okbg);color:var(--ok);font-weight:600}
+canvas#draw{width:100%;height:320px;border:1px solid var(--line);border-radius:12px;touch-action:none;background:var(--bg);margin-top:10px}
+.meter{height:22px;border-radius:11px;background:var(--key);overflow:hidden;margin:10px 0}
+.meter>div{height:100%;width:0;background:linear-gradient(90deg,#1e8e4e,#e0b100,#c62828);transition:width .05s}
+video{width:100%;max-width:640px;border-radius:12px;background:#000;margin-top:10px}
+#fs{position:fixed;inset:0;z-index:100;display:none;cursor:none}
+#fsHint{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);color:#fff;padding:6px 14px;border-radius:8px;font-size:14px;z-index:101;display:none}
+.check{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line)}
+.check:last-child{border-bottom:0}.check input{margin-top:4px;width:18px;height:18px;flex:0 0 auto}
+.check b{display:block}.check span{color:var(--muted);font-size:14px}
+.group{margin-top:14px;font-weight:700}
+@media print{nav,button,select,#pad,canvas,video,.meter{display:none}section{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Hands-on laptop tests</h1>
+<p class="muted">Works offline in Edge or Chrome. Allow camera/microphone when asked. Turn the volume to about half before the speaker test.</p>
+<nav>
+  <a href="#screen">Screen</a><a href="#keyboard">Keyboard</a><a href="#pad-sec">Touchpad / mouse</a><a href="#touch">Touch &amp; pen</a>
+  <a href="#speakers">Speakers</a><a href="#mic">Microphone</a><a href="#cam">Webcam</a><a href="#checklist">Physical checklist</a>
+</nav>
+
+<section id="screen">
+  <h2>1. Screen: dead pixels, backlight, colours</h2>
+  <p class="muted">The screen fills with one colour at a time. Click, or press Space / arrow keys, to go to the next colour. Esc to exit. Look closely for dots that stay dark or bright, glowing edges on black, yellow patches, lines or flicker. Change the brightness on each colour.</p>
+  <button class="primary" id="fsStart">Start full-screen colour test</button>
+  <div class="status" id="fsStatus"></div>
+</section>
+<div id="fs"></div><div id="fsHint"></div>
+
+<section id="keyboard">
+  <h2>2. Keyboard</h2>
+  <p class="muted">Press every key. Keys turn green once they work. Also test Fn + brightness / volume / keyboard-backlight keys (Windows handles those, so watch the screen). A blue outline means the key is held down; keys that stay outlined are stuck.</p>
+  <div class="row"><b id="kbCount">0</b>&nbsp;keys tested &nbsp;<button id="kbReset">Reset</button></div>
+  <div class="kb" id="kb"></div>
+  <div class="chips" id="kbOther"></div>
+</section>
+
+<section id="pad-sec">
+  <h2>3. Touchpad / mouse</h2>
+  <p class="muted">Inside the box: left click, right click, double-click, scroll with two fingers both ways, drag. Press the physical buttons (or the bottom corners) too.</p>
+  <div id="pad">Click, right-click, double-click, scroll and drag here</div>
+  <div class="chips">
+    <span class="chip" id="pLeft">Left click</span><span class="chip" id="pRight">Right click</span><span class="chip" id="pMiddle">Middle click</span>
+    <span class="chip" id="pDbl">Double click</span><span class="chip" id="pUp">Scroll up</span><span class="chip" id="pDown">Scroll down</span>
+    <span class="chip" id="pSide">Scroll sideways</span><span class="chip" id="pDrag">Drag</span>
+  </div>
+</section>
+
+<section id="touch">
+  <h2>4. Touch screen &amp; pen (if it has one)</h2>
+  <p class="muted">Draw lines across the whole box, especially the corners and edges, with one finger then several fingers. Gaps in the lines = dead zones. Marks appearing by themselves = "ghost touch" (faulty digitizer).</p>
+  <div class="row"><button id="drawClear">Clear</button><span class="status" id="drawInfo">No touch yet.</span></div>
+  <canvas id="draw"></canvas>
+</section>
+
+<section id="speakers">
+  <h2>5. Speakers &amp; headphone jack</h2>
+  <p class="muted">Check sound comes out of the correct side, with no crackling or buzzing. The sweep goes from very low to very high pitch: listen for rattles or distortion. Repeat with headphones plugged in.</p>
+  <div class="row">
+    <button id="spL">Left only</button><button id="spR">Right only</button><button id="spB">Both</button>
+    <button class="primary" id="spSweep">Frequency sweep (10 s)</button><button id="spMusic">Chord</button><button id="spStop">Stop</button>
+    <label>Volume <input type="range" id="spVol" min="0" max="1" step="0.05" value="0.3"></label>
+  </div>
+  <div class="status" id="spStatus"></div>
+</section>
+
+<section id="mic">
+  <h2>6. Microphone</h2>
+  <p class="muted">Talk normally: the bar should move. Then record 5 seconds and play it back. It should sound clear, without hiss or crackle.</p>
+  <div class="row"><button class="primary" id="micStart">Start microphone</button><button id="micRec" disabled>Record 5 s</button><select id="micSel"></select></div>
+  <div class="meter"><div id="micBar"></div></div>
+  <audio id="micPlay" controls style="width:100%;display:none"></audio>
+  <div class="status" id="micStatus"></div>
+</section>
+
+<section id="cam">
+  <h2>7. Webcam</h2>
+  <p class="muted">Check the image is sharp, the colours look right, there are no lines or spots, and the camera light comes on. If there are two cameras (e.g. a Windows Hello IR camera), pick each one.</p>
+  <div class="row"><button class="primary" id="camStart">Start camera</button><select id="camSel"></select><button id="camStop">Stop</button></div>
+  <video id="camVid" autoplay playsinline muted></video>
+  <div class="status" id="camStatus"></div>
+</section>
+
+<section id="checklist">
+  <h2>8. Physical inspection checklist</h2>
+  <p class="muted">Tick each item. Ticks are remembered in this browser. Use Print to save it as a PDF.</p>
+  <div id="cl"></div>
+  <div class="row" style="margin-top:10px"><button onclick="window.print()">Print / save as PDF</button><button id="clReset">Clear ticks</button></div>
+</section>
+</div>
+
+<script>
+(function(){
+"use strict";
+function $(id){return document.getElementById(id);}
+
+/* ---------- screen test ---------- */
+var colours=[["#000000","Black: look for bright dots and glowing edges (backlight bleed)"],["#ffffff","White: look for dark dots, yellow patches, uneven brightness"],["#ff0000","Red"],["#00ff00","Green"],["#0000ff","Blue"],["#808080","Grey: look for blotches, banding or lines"],["gradient","Gradient: should be smooth, with no hard bands"],["checker","Fine pattern: look for flicker or shimmer"]];
+var fsI=0,fs=$("fs"),hint=$("fsHint");
+function showColour(){
+  var c=colours[fsI];
+  if(c[0]==="gradient"){fs.style.background="linear-gradient(90deg,#000,#fff)";}
+  else if(c[0]==="checker"){fs.style.background="repeating-conic-gradient(#000 0% 25%,#fff 0% 50%) 0 0/4px 4px";}
+  else{fs.style.background=c[0];}
+  hint.textContent=(fsI+1)+"/"+colours.length+" "+c[1]+" (click = next, Esc = exit)";
+}
+function fsStop(){fs.style.display="none";hint.style.display="none";if(document.fullscreenElement){document.exitFullscreen().catch(function(){});} $("fsStatus").textContent="Colour test finished.";}
+$("fsStart").onclick=function(){
+  fsI=0;fs.style.display="block";hint.style.display="block";showColour();
+  if(fs.requestFullscreen){fs.requestFullscreen().catch(function(){});}
+  setTimeout(function(){hint.style.display="none";},4000);
+};
+function fsNext(){fsI++;if(fsI>=colours.length){fsStop();return;}showColour();hint.style.display="block";setTimeout(function(){hint.style.display="none";},2500);}
+fs.addEventListener("click",fsNext);
+document.addEventListener("fullscreenchange",function(){if(!document.fullscreenElement&&fs.style.display==="block"){fsStop();}});
+
+/* ---------- keyboard ---------- */
+var layout=[
+ [["Escape","Esc",1],["F1","F1",1],["F2","F2",1],["F3","F3",1],["F4","F4",1],["F5","F5",1],["F6","F6",1],["F7","F7",1],["F8","F8",1],["F9","F9",1],["F10","F10",1],["F11","F11",1],["F12","F12",1],["PrintScreen","PrtSc",1],["Insert","Ins",1],["Delete","Del",1]],
+ [["Backquote","`",1],["Digit1","1",1],["Digit2","2",1],["Digit3","3",1],["Digit4","4",1],["Digit5","5",1],["Digit6","6",1],["Digit7","7",1],["Digit8","8",1],["Digit9","9",1],["Digit0","0",1],["Minus","-",1],["Equal","=",1],["Backspace","Backspace",2]],
+ [["Tab","Tab",1.5],["KeyQ","Q",1],["KeyW","W",1],["KeyE","E",1],["KeyR","R",1],["KeyT","T",1],["KeyY","Y",1],["KeyU","U",1],["KeyI","I",1],["KeyO","O",1],["KeyP","P",1],["BracketLeft","[",1],["BracketRight","]",1],["Backslash","\\",1.5]],
+ [["CapsLock","Caps",1.8],["KeyA","A",1],["KeyS","S",1],["KeyD","D",1],["KeyF","F",1],["KeyG","G",1],["KeyH","H",1],["KeyJ","J",1],["KeyK","K",1],["KeyL","L",1],["Semicolon",";",1],["Quote","'",1],["Enter","Enter",2.2]],
+ [["ShiftLeft","Shift",2.3],["KeyZ","Z",1],["KeyX","X",1],["KeyC","C",1],["KeyV","V",1],["KeyB","B",1],["KeyN","N",1],["KeyM","M",1],["Comma",",",1],["Period",".",1],["Slash","/",1],["ShiftRight","Shift",2.7]],
+ [["ControlLeft","Ctrl",1.3],["MetaLeft","Win",1.3],["AltLeft","Alt",1.3],["Space","Space",5.5],["AltRight","Alt Gr",1.3],["ContextMenu","Menu",1.1],["ControlRight","Ctrl",1.3],["ArrowLeft","\u2190",1],["ArrowUp","\u2191",1],["ArrowDown","\u2193",1],["ArrowRight","\u2192",1]],
+ [["Home","Home",1.2],["End","End",1.2],["PageUp","PgUp",1.2],["PageDown","PgDn",1.2],["IntlBackslash","ISO \\",1.2],["NumLock","NumLk",1.2],["NumpadDivide","N/",1],["NumpadMultiply","N*",1],["NumpadSubtract","N-",1],["NumpadAdd","N+",1],["NumpadEnter","NEnt",1.2],["NumpadDecimal","N.",1]],
+ [["Numpad0","N0",1],["Numpad1","N1",1],["Numpad2","N2",1],["Numpad3","N3",1],["Numpad4","N4",1],["Numpad5","N5",1],["Numpad6","N6",1],["Numpad7","N7",1],["Numpad8","N8",1],["Numpad9","N9",1]]
+];
+var keyEls={},hit={},kb=$("kb");
+layout.forEach(function(row,ri){
+  var r=document.createElement("div");r.className="kr";
+  if(ri===6){var t=document.createElement("div");t.className="muted";t.style.fontSize="13px";t.textContent="Extra keys (only if this keyboard has them):";kb.appendChild(t);}
+  row.forEach(function(k){var e=document.createElement("div");e.className="k";e.textContent=k[1];e.style.width=(k[2]*42)+"px";keyEls[k[0]]=e;r.appendChild(e);});
+  kb.appendChild(r);
+});
+function upd(){$("kbCount").textContent=Object.keys(hit).length;}
+function otherChip(name){var id="ok_"+name;if(!$(id)){var c=document.createElement("span");c.className="chip ok";c.id=id;c.textContent=name;$("kbOther").appendChild(c);}}
+document.addEventListener("keydown",function(e){
+  if(fs.style.display==="block"){if(e.code==="Escape"){fsStop();}else if(e.code==="Space"||e.code.indexOf("Arrow")===0){e.preventDefault();fsNext();}return;}
+  var tag=(e.target.tagName||"").toLowerCase();if(tag==="input"||tag==="select"){return;}
+  var code=e.code||e.key;
+  if(["Tab","Backspace","Space","F1","F3","F5","F6","F7","F10","F11","F12","ArrowUp","ArrowDown","PageUp","PageDown","Home","End","Slash","Quote","AltLeft","AltRight","ContextMenu"].indexOf(code)>=0||e.ctrlKey){e.preventDefault();}
+  hit[code]=1;
+  if(keyEls[code]){keyEls[code].classList.add("hit","down");}else{otherChip(code||e.key);}
+  upd();
+});
+document.addEventListener("keyup",function(e){var code=e.code||e.key;if(keyEls[code]){keyEls[code].classList.remove("down");}
+  if(code==="PrintScreen"&&!hit[code]){hit[code]=1;if(keyEls[code]){keyEls[code].classList.add("hit");}upd();}});
+$("kbReset").onclick=function(){hit={};Object.keys(keyEls).forEach(function(k){keyEls[k].classList.remove("hit","down");});$("kbOther").innerHTML="";upd();};
+
+/* ---------- touchpad ---------- */
+var pad=$("pad"),dragging=false,moved=0;
+function ok(id){$(id).classList.add("ok");}
+pad.addEventListener("contextmenu",function(e){e.preventDefault();});
+pad.addEventListener("mousedown",function(e){e.preventDefault();if(e.button===0){ok("pLeft");dragging=true;moved=0;}if(e.button===1){ok("pMiddle");}if(e.button===2){ok("pRight");}});
+pad.addEventListener("mousemove",function(e){if(dragging){moved+=Math.abs(e.movementX)+Math.abs(e.movementY);if(moved>80){ok("pDrag");}}});
+document.addEventListener("mouseup",function(){dragging=false;});
+pad.addEventListener("dblclick",function(){ok("pDbl");});
+pad.addEventListener("wheel",function(e){e.preventDefault();if(e.deltaY<0){ok("pUp");}if(e.deltaY>0){ok("pDown");}if(e.deltaX!==0){ok("pSide");}},{passive:false});
+
+/* ---------- touch / pen ---------- */
+var cv=$("draw"),ctx=cv.getContext("2d"),last={},maxT=0,active={},types={};
+function sizeCanvas(){var r=cv.getBoundingClientRect();cv.width=r.width*devicePixelRatio;cv.height=r.height*devicePixelRatio;ctx.scale(devicePixelRatio,devicePixelRatio);ctx.lineCap="round";ctx.lineWidth=4;}
+sizeCanvas();window.addEventListener("resize",sizeCanvas);
+var palette=["#2457d6","#1e8e4e","#c62828","#a86500","#7b3fbf","#0b8a8a","#d6246f","#555"];
+function info(){$("drawInfo").textContent="Input types: "+Object.keys(types).join(", ")+" | Most fingers at once: "+maxT;}
+cv.addEventListener("pointerdown",function(e){cv.setPointerCapture(e.pointerId);var r=cv.getBoundingClientRect();last[e.pointerId]=[e.clientX-r.left,e.clientY-r.top];active[e.pointerId]=1;types[e.pointerType]=1;maxT=Math.max(maxT,Object.keys(active).length);info();});
+cv.addEventListener("pointermove",function(e){if(!last[e.pointerId]){return;}var r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;ctx.strokeStyle=palette[e.pointerId%palette.length];ctx.lineWidth=e.pointerType==="pen"?Math.max(1,e.pressure*8):4;ctx.beginPath();ctx.moveTo(last[e.pointerId][0],last[e.pointerId][1]);ctx.lineTo(x,y);ctx.stroke();last[e.pointerId]=[x,y];});
+function endP(e){delete last[e.pointerId];delete active[e.pointerId];}
+cv.addEventListener("pointerup",endP);cv.addEventListener("pointercancel",endP);
+$("drawClear").onclick=function(){ctx.clearRect(0,0,cv.width,cv.height);maxT=0;types={};$("drawInfo").textContent="Cleared.";};
+
+/* ---------- speakers ---------- */
+var ac=null,nodes=[];
+function audio(){if(!ac){ac=new (window.AudioContext||window.webkitAudioContext)();}if(ac.state==="suspended"){ac.resume();}return ac;}
+function stopAll(){nodes.forEach(function(n){try{n.stop();}catch(e){}});nodes=[];$("spStatus").textContent="";}
+function tone(freqs,pan,dur,sweep){
+  stopAll();var a=audio(),g=a.createGain(),p=a.createStereoPanner?a.createStereoPanner():null,v=parseFloat($("spVol").value);
+  g.gain.setValueAtTime(0,a.currentTime);g.gain.linearRampToValueAtTime(v/freqs.length,a.currentTime+0.05);g.gain.setValueAtTime(v/freqs.length,a.currentTime+dur-0.1);g.gain.linearRampToValueAtTime(0,a.currentTime+dur);
+  if(p){p.pan.value=pan;g.connect(p);p.connect(a.destination);}else{g.connect(a.destination);}
+  freqs.forEach(function(f){var o=a.createOscillator();o.type="sine";o.frequency.setValueAtTime(f,a.currentTime);if(sweep){o.frequency.exponentialRampToValueAtTime(16000,a.currentTime+dur);}o.connect(g);o.start();o.stop(a.currentTime+dur);nodes.push(o);});
+}
+$("spL").onclick=function(){tone([440],-1,2);$("spStatus").textContent="Playing on the LEFT speaker only.";};
+$("spR").onclick=function(){tone([440],1,2);$("spStatus").textContent="Playing on the RIGHT speaker only.";};
+$("spB").onclick=function(){tone([440],0,2);$("spStatus").textContent="Playing on both speakers.";};
+$("spSweep").onclick=function(){tone([40],0,10,true);$("spStatus").textContent="Sweeping 40 Hz to 16 kHz: listen for rattles or buzzing.";};
+$("spMusic").onclick=function(){tone([261.6,329.6,392,523.3],0,3);$("spStatus").textContent="Playing a chord.";};
+$("spStop").onclick=stopAll;
+
+/* ---------- microphone ---------- */
+var micStream=null,raf=0;
+function listDevices(kind,sel){if(!navigator.mediaDevices||!navigator.mediaDevices.enumerateDevices){return;}navigator.mediaDevices.enumerateDevices().then(function(d){var cur=sel.value;sel.innerHTML="";d.filter(function(x){return x.kind===kind;}).forEach(function(x,i){var o=document.createElement("option");o.value=x.deviceId;o.textContent=x.label||(kind+" "+(i+1));sel.appendChild(o);});if(cur){sel.value=cur;}});}
+function startMic(id){
+  if(!navigator.mediaDevices){$("micStatus").textContent="This browser cannot access the microphone here. Use the Windows Sound Recorder app instead.";return;}
+  if(micStream){micStream.getTracks().forEach(function(t){t.stop();});}cancelAnimationFrame(raf);
+  navigator.mediaDevices.getUserMedia({audio:id?{deviceId:{exact:id}}:true}).then(function(s){
+    micStream=s;var a=audio(),src=a.createMediaStreamSource(s),an=a.createAnalyser();an.fftSize=1024;src.connect(an);var buf=new Float32Array(an.fftSize);
+    (function loop(){an.getFloatTimeDomainData(buf);var sum=0;for(var i=0;i<buf.length;i++){sum+=buf[i]*buf[i];}var rms=Math.sqrt(sum/buf.length);$("micBar").style.width=Math.min(100,rms*400)+"%";raf=requestAnimationFrame(loop);})();
+    $("micRec").disabled=false;$("micStatus").textContent="Microphone on: "+s.getAudioTracks()[0].label;listDevices("audioinput",$("micSel"));
+  }).catch(function(e){$("micStatus").textContent="Could not open the microphone ("+e.name+"). Check Windows Settings > Privacy > Microphone, or use the Sound Recorder app.";});
+}
+$("micStart").onclick=function(){startMic($("micSel").value);};
+$("micSel").onchange=function(){startMic(this.value);};
+$("micRec").onclick=function(){
+  if(!micStream||!window.MediaRecorder){return;}var rec=new MediaRecorder(micStream),chunks=[];
+  rec.ondataavailable=function(e){chunks.push(e.data);};
+  rec.onstop=function(){var p=$("micPlay");p.src=URL.createObjectURL(new Blob(chunks,{type:rec.mimeType}));p.style.display="block";p.play();$("micStatus").textContent="Playing back your recording.";};
+  rec.start();$("micStatus").textContent="Recording 5 seconds - talk now...";setTimeout(function(){rec.stop();},5000);
+};
+
+/* ---------- webcam ---------- */
+var camStream=null;
+function startCam(id){
+  if(!navigator.mediaDevices){$("camStatus").textContent="This browser cannot access the camera here. Use the Windows Camera app instead.";return;}
+  if(camStream){camStream.getTracks().forEach(function(t){t.stop();});}
+  navigator.mediaDevices.getUserMedia({video:id?{deviceId:{exact:id},width:{ideal:1920}}:{width:{ideal:1920}}}).then(function(s){
+    camStream=s;$("camVid").srcObject=s;var st=s.getVideoTracks()[0].getSettings();
+    $("camStatus").textContent="Camera: "+s.getVideoTracks()[0].label+" - "+st.width+" x "+st.height+(st.frameRate?" @ "+Math.round(st.frameRate)+" fps":"");listDevices("videoinput",$("camSel"));
+  }).catch(function(e){$("camStatus").textContent="Could not open the camera ("+e.name+"). Check Settings > Privacy > Camera, a physical privacy shutter or an F-key camera switch, or try the Camera app.";});
+}
+$("camStart").onclick=function(){startCam($("camSel").value);};
+$("camSel").onchange=function(){startCam(this.value);};
+$("camStop").onclick=function(){if(camStream){camStream.getTracks().forEach(function(t){t.stop();});camStream=null;$("camVid").srcObject=null;}};
+
+/* ---------- checklist ---------- */
+var groups=[
+ ["Identity & paperwork",[
+  ["Serial number sticker matches the report","The serial on the bottom / under the battery matches the serial in the report and on the receipt/box. A missing or scratched-off sticker is a red flag."],
+  ["Proof of purchase","A receipt, invoice or original box. For ex-company laptops: a release letter or a reseller invoice."],
+  ["Seller removed their accounts","Signed out of their Microsoft account, removed it from account.microsoft.com/devices, turned off Find My Device."],
+  ["Watched a reset while online","Settings > System > Recovery > Reset this PC > Remove everything, connected to Wi-Fi. No company sign-in page appears during setup."]]],
+ ["BIOS / firmware (open it: key shown in the report)",[
+  ["BIOS opens without a password","No admin / supervisor / setup / power-on password prompt."],
+  ["Anti-theft is off","Absolute / Computrace = Disabled or Permanently disabled (Dell, HP, Lenovo menus are under Security)."],
+  ["No company name in BIOS","No asset tag, ownership tag or company logo / message at start-up."],
+  ["Maker diagnostics passed","Ran the built-in hardware diagnostics (see the report for the key) with no errors."]]],
+ ["Body & build",[
+  ["No cracks or dents","Check corners, around the hinges, the lid and the base. Look for cracked plastic near the hinges."],
+  ["Hinges are firm","The screen stays at any angle and does not wobble or creak. Both hinges move together."],
+  ["Lid closes flat and evenly","A gap or uneven close can mean a swollen battery or a bent frame."],
+  ["No swollen battery","The base is flat on the table, the touchpad is not raised, and it clicks normally."],
+  ["All screws present","Missing or damaged screws suggest it has been opened (repairs, swapped parts)."],
+  ["Rubber feet present","Missing feet can block air vents underneath."],
+  ["No liquid damage signs","No sticky keys, stains, corrosion in ports, or a sweet / burnt smell."]]],
+ ["Screen",[
+  ["No dead or stuck pixels","Ran the colour test above."],
+  ["No pressure marks or keyboard imprint","Look at a white screen at an angle: marks or a grid pattern from the keyboard."],
+  ["Brightness works","Brightness goes fully up and down with no flicker."],
+  ["Screen does not flicker when moving the lid","Open and close the lid slowly while looking at the screen: flicker means a damaged display cable."]]],
+ ["Keyboard, touchpad, ports",[
+  ["Every key works","Keyboard test above, plus Fn keys and the keyboard backlight."],
+  ["Touchpad clicks and gestures work","Touchpad test above."],
+  ["Every USB port works","Plug this USB stick or a mouse into each port, one by one."],
+  ["USB-C / Thunderbolt charging works","If it charges through USB-C, try each USB-C port with the charger."],
+  ["HDMI / display output","If possible, connect a TV or monitor."],
+  ["Headphone jack works","Plug in earphones and play the speaker test."],
+  ["SD card reader (if any)","Insert an SD card."]]],
+ ["Power & cooling",[
+  ["Original charger","Wattage on the charger label matches the laptop's spec (gaming laptops need high-watt chargers)."],
+  ["Charging port is firm","The plug does not wiggle and charging does not cut in and out when you move the cable."],
+  ["Fans work and are quiet at rest","They spin up during the CPU test in the report and slow down after. No grinding or clicking."],
+  ["No overheating","The base does not get painfully hot during the load test. The laptop does not shut down by itself."]]],
+ ["Wireless & other",[
+  ["Wi-Fi connects","Connect to your phone hotspot and open a website."],
+  ["Bluetooth pairs","Pair your phone or earbuds."],
+  ["Webcam and microphone","Tests above."],
+  ["Fingerprint / face login (if any)","Set up Windows Hello to test."]]]
+];
+var store={};try{store=JSON.parse(localStorage.getItem("lc_checklist")||"{}");}catch(e){store={};}
+function save(){try{localStorage.setItem("lc_checklist",JSON.stringify(store));}catch(e){}}
+var cl=$("cl");
+groups.forEach(function(g,gi){
+  var h=document.createElement("div");h.className="group";h.textContent=g[0];cl.appendChild(h);
+  g[1].forEach(function(it,ii){
+    var id="c"+gi+"_"+ii,lab=document.createElement("label");lab.className="check";
+    var cb=document.createElement("input");cb.type="checkbox";cb.id=id;cb.checked=!!store[id];cb.onchange=function(){store[id]=cb.checked;save();};
+    var txt=document.createElement("div"),b=document.createElement("b"),s=document.createElement("span");b.textContent=it[0];s.textContent=it[1];txt.appendChild(b);txt.appendChild(s);
+    lab.appendChild(cb);lab.appendChild(txt);cl.appendChild(lab);
+  });
+});
+$("clReset").onclick=function(){store={};save();cl.querySelectorAll("input").forEach(function(c){c.checked=false;});};
+})();
+</script>
+</body>
+</html>
